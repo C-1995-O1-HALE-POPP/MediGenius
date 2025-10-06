@@ -1,56 +1,89 @@
-# main.py
+import os
 from dotenv import load_dotenv
-from core.langgraph_workflow import setup_workflow
-from core.state import initialize_state
+from core.langgraph_workflow import create_workflow
+from core.state import initialize_conversation_state, reset_query_state
+from tools.pdf_loader import process_pdf
+from tools.vector_store import get_or_create_vectorstore
+
+load_dotenv()
+
+def initialize_system():
+    """Initialize the system and create vector database if needed"""
+    pdf_path = './data/medical_book.pdf'
+    persist_dir = './medical_db/'
+    
+    print("\n" + "="*60)
+    print("Initializing Medical AI System...")
+    print("="*60)
+    
+    # Try to load existing database first
+    existing_db = get_or_create_vectorstore(persist_dir=persist_dir)
+    
+    if not existing_db:
+        # Check if PDF exists to create new database
+        if os.path.exists(pdf_path):
+            print("Processing PDF and creating vector database...")
+            doc_splits = process_pdf(pdf_path)
+            vectorstore = get_or_create_vectorstore(documents=doc_splits, persist_dir=persist_dir)
+            if vectorstore:
+                print("Vector database created successfully!")
+            else:
+                print("Failed to create vector database")
+        else:
+            print(f"PDF not found at {pdf_path}")
+            print("System will work with limited functionality (no RAG)")
 
 def main():
-    # Load environment variables
-    load_dotenv()
+    # Initialize system
+    initialize_system()
     
-    # Initialize the workflow and state
-    app = setup_workflow()
-    conversation_state = initialize_state()
+    # Create workflow
+    print("\nCreating workflow...")
+    app = create_workflow()
     
-    print("=== Medical AI Assistant (Type 'exit' to quit) ===")
+    # Initialize conversation state
+    conversation_state = initialize_conversation_state()
     
+    print("\n" + "="*60)
+    print("Medical AI Assistant Ready!")
+    print("="*60)
+    print("Commands: 'exit' to quit, 'clear' to reset conversation")
+    print("Ask any medical question for professional guidance!\n")
+
     while True:
-        query = input("\nAsk your medical question: ").strip()
-        
+        query = input("Your question: ").strip()
+
         if query.lower() == "exit":
-            conversation_state = initialize_state()  # Reset state
-            print("\n=== Consultation Ended. Conversation history cleared. ===")
+            print("\nThank you for using Medical AI Assistant. Stay healthy!")
             break
-            
-        # Update state with new question
-        conversation_state.update({
-            "question": query,
-            "documents": [],
-            "generation": "",
-            "source": "",
-            "search_query": None,
-            "llm_attempted": False,
-            "llm_success": False,
-            "rag_attempted": False,
-            "rag_success": False,
-            "wiki_attempted": False,
-            "wiki_success": False,
-            "ddg_attempted": False,
-            "ddg_success": False,
-            "current_tool": None,
-            "retry_count": 0
-        })
         
-        # Run the workflow
+        if query.lower() == "clear":
+            conversation_state = initialize_conversation_state()
+            print("\nConversation cleared. Starting fresh!\n")
+            continue
+        
+        if not query:
+            print("Please enter a question.\n")
+            continue
+
+        # Reset state for new query but keep conversation history
+        conversation_state = reset_query_state(conversation_state)
+        conversation_state["question"] = query
+        
+        print("\nProcessing your question...")
+        
+        # Process the query
         result = app.invoke(conversation_state)
         conversation_state.update(result)
-        
-        # Print response
+
+        # Display the response with source
         if result.get("generation"):
-            print(f"\n[Doctor AI] {result['generation']}")
+            print(f"\nResponse: {result['generation']}")
+            print(f"Source: {result.get('source', 'Unknown')}")
         else:
-            print("\n[Doctor AI] Sorry, I couldn't generate a response.")
-            
-        print("\n" + "-" * 60)
+            print("\nUnable to generate response. Please try rephrasing.")
+
+        print("\n" + "-" * 60 + "\n")
 
 if __name__ == "__main__":
     main()

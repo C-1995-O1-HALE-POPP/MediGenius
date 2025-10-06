@@ -1,49 +1,89 @@
-# agents/executor_agent.py
-from tools.llm_client import get_llm
 from core.state import AgentState
+from tools.llm_client import get_llm
 
-class ExecutorAgent:
+def ExecutorAgent(state: AgentState) -> AgentState:
     llm = get_llm()
     
-    @classmethod
-    def process(cls, state: AgentState) -> AgentState:
-        context = state.get("conversation_history", [])
-        question = state["question"]
+    if not llm:
+        # Fallback if LLM not available
+        state["generation"] = "Medical AI service temporarily unavailable. Please consult a healthcare professional."
+        state["source"] = "System Message"
+        return state
+    
+    question = state["question"]
+    source_info = state.get("source", "Unknown")
+    
+    # Get conversation context
+    history_context = ""
+    for item in state.get("conversation_history", [])[-3:]:
+        if item.get('role') == 'user':
+            history_context += f"Patient: {item.get('content', '')}\n"
+        elif item.get('role') == 'assistant':
+            history_context += f"Doctor: {item.get('content', '')}\n"
 
-        # Use docs if available
-        if state.get("documents") and len(state["documents"]) > 0:
-            content = "\n".join([doc.page_content for doc in state["documents"]])
-            prompt = f"""You are a kind, highly experienced professional medical doctor speaking directly with a patient. Be clear, supportive and concise like human response.
+    # If we have documents from retrieval
+    if state.get("documents") and len(state["documents"]) > 0:
+        content = "\n\n".join([doc.page_content[:1000] for doc in state["documents"][:3]])
+        
+        prompt = f"""You are an experienced medical doctor providing helpful consultation.
 
-Conversation Context:
-{"".join(context[-6:])}
+Previous Conversation:
+{history_context}
 
-Patient's Question:
+Patient's Current Question:
 {question}
 
-Relevant Medical Information:
+Medical Information:
 {content}
 
-Guidelines:
-- Answer in 2-3 sentences.
-- Do not mention sources.
-- Speak like a caring human doctor."""
+Provide a clear, caring response in 2-4 sentences. Be professional and reassuring."""
 
-            response = cls.llm.invoke(prompt)
-            answer = response.content.strip()
-            state["generation"] = answer
-            state["source"] = "retrieved_docs"
-            state["conversation_history"].append(f"Doctor: {answer}")
-            return state
-
-        # If no docs but LLM succeeded earlier, use that generation
-        if state.get("llm_success", False) and state.get("generation"):
-            state["conversation_history"].append(f"Doctor: {state['generation']}")
-            state["source"] = "llm_knowledge"
-            return state
-
-        # Otherwise fallback response
-        state["generation"] = "I couldn't find enough information to answer your question right now. Please consult a licensed medical professional."
-        state["source"] = "none"
-        state["conversation_history"].append(state["generation"])
+        response = llm.invoke(prompt)
+        answer = response.content.strip() if hasattr(response, 'content') else str(response).strip()
+        
+        state["generation"] = answer
+        state["source"] = source_info
+        
+        # Add to conversation history
+        state["conversation_history"].append({
+            'role': 'user',
+            'content': question
+        })
+        state["conversation_history"].append({
+            'role': 'assistant',
+            'content': answer,
+            'source': source_info
+        })
         return state
+
+    # If LLM was successful earlier
+    if state.get("llm_success", False) and state.get("generation"):
+        answer = state["generation"]
+        
+        state["conversation_history"].append({
+            'role': 'user',
+            'content': question
+        })
+        state["conversation_history"].append({
+            'role': 'assistant',
+            'content': answer,
+            'source': source_info
+        })
+        return state
+
+    # Fallback response
+    fallback_response = "I understand your concern about your symptoms. For accurate medical advice, please consult with a healthcare professional who can properly evaluate your condition."
+    state["generation"] = fallback_response
+    state["source"] = "System Message"
+    
+    state["conversation_history"].append({
+        'role': 'user',
+        'content': question
+    })
+    state["conversation_history"].append({
+        'role': 'assistant',
+        'content': fallback_response,
+        'source': 'System Message'
+    })
+    
+    return state

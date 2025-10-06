@@ -1,140 +1,1905 @@
-<!-- templates/index.html -->
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGenius - AI Medical Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variables and Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block content %}
-<div class="app-container">
-    <!-- Updated Sidebar with Developer Info -->
-    <div class="sidebar animate__animated animate__fadeInLeft">
-        <div class="sidebar-header">
-            <div class="logo-3d">
-                <i class="fas fa-brain"></i>
-            </div>
-            <h2>MediGenius</h2>
-            <p>Version 2.0</p>
-        </div>
-        
-        <div class="developer-info" style="color:black">
-            <div class="info-section">
-                <h3><i class="fas fa-user"></i> Developer</h3>
-                <p>Md. Emon Hasan</p>
-            </div>
+        :root {
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --input-height: 160px;
             
-            <div class="info-section">
-                <h3><i class="fas fa-address-book"></i> Contact</h3>
-                <ul>
-                    <li><i class="fab fa-whatsapp"></i> <a href="https://wa.me/8801834363533" target="_blank">WhatsApp</a></li>
-                    <li><i class="fab fa-github"></i> <a href="https://github.com/Md-Emon-Hasan" target="_blank">GitHub</a></li>
-                    <li><i class="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/md-emon-hasan-695483237/" target="_blank">LinkedIn</a></li>
-                </ul>
-            </div>
+            /* Colors */
+            --primary: #667eea;
+            --primary-light: #7c3aed;
+            --secondary: #06b6d4;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             
-            <div class="info-section">
-                <h3><i class="fas fa-map-marker-alt"></i> Address</h3>
-                <p>Dhaka, Bangladesh</p>
-            </div>
-        </div>
+            /* Glass Effect Colors */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            
+            /* Light Theme */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-color: rgba(148, 163, 184, 0.2);
+        }
 
-        <div class="user-profile">
-            <div class="profile-avatar">
-                <i class="fas fa-user-md"></i>
-            </div>
-            <div class="profile-info">
-                <span class="username">Dr. Assistant</span>
-                <span class="status">Online</span>
-            </div>
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(30, 41, 59, 0.5);
+            --glass-border: rgba(148, 163, 184, 0.2);
+        }
+
+        /* Base Styles */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(102, 126, 234, 0.05) 0%,
+                rgba(118, 75, 162, 0.05) 25%,
+                rgba(236, 72, 153, 0.05) 50%,
+                rgba(6, 182, 212, 0.05) 75%,
+                rgba(102, 126, 234, 0.05) 100%);
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Floating Circles */
+        .floating-circles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            top: -150px;
+            left: -150px;
+            animation-duration: 25s;
+        }
+
+        .circle-2 {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            top: 20%;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .circle-3 {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            bottom: -150px;
+            left: 30%;
+            animation-duration: 35s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(30px, -30px) rotate(90deg) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, 20px) rotate(180deg) scale(0.9);
+            }
+            75% {
+                transform: translate(-30px, -10px) rotate(270deg) scale(1.05);
+            }
+        }
+
+        /* Glass Morphism Effect */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .glass-header {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        /* App Container */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Toggle Button */
+        .sidebar-toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            width: 40px;
+            height: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 70px 20px 20px 20px;
+        }
+
+        /* Logo Section */
+        .sidebar-header {
+            margin-bottom: 30px;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-animated {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 15px;
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.4;
+            }
+        }
+
+        .logo-animated i {
+            position: relative;
+            z-index: 1;
+            color: white;
+            font-size: 24px;
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(1.1); }
+            20% { transform: scale(0.95); }
+        }
+
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .version {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* New Chat Button */
+        .new-chat-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Chat History Section */
+        .chat-history-section {
+            flex: 1;
+            overflow-y: auto;
+            margin: 20px -10px;
+            padding: 0 10px;
+        }
+
+        .chat-history-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-history-section::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 3px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+
+        .section-header span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .chat-list {
+            margin-bottom: 25px;
+        }
+
+        .chat-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .chat-item:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .chat-item.active {
+            background: linear-gradient(135deg, 
+                rgba(102, 126, 234, 0.1), 
+                rgba(124, 58, 237, 0.1));
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .chat-item-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+        }
+
+        .chat-item-title {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .chat-item-delete {
+            opacity: 0;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .chat-item:hover .chat-item-delete {
+            opacity: 1;
+        }
+
+        .chat-item-delete:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--glass-border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .developer-card {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .dev-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .dev-header i {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .dev-header span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .dev-info p {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-link {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .theme-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin-left: 0;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .main-content.sidebar-open {
+            margin-left: var(--sidebar-width);
+        }
+
+        /* Fixed Header */
+        .app-header {
+            height: var(--header-height);
+            padding: 0 30px 0 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 50;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .gradient-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), var(--accent));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-flow 3s ease infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-ring {
+            position: relative;
+            width: 10px;
+            height: 10px;
+        }
+
+        .ring-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--success);
+            border-radius: 50%;
+            animation: ring-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes ring-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 10px 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .action-btn:hover {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - var(--header-height) - var(--input-height));
+            padding: 40px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-screen.hidden {
+            display: none;
+        }
+
+        .welcome-content {
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .logo-3d {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 40px;
+            position: relative;
+            animation: float-smooth 6s ease-in-out infinite;
+        }
+
+        @keyframes float-smooth {
+            0%, 100% {
+                transform: translateY(0) rotateZ(0deg);
+            }
+            25% {
+                transform: translateY(-10px) rotateZ(2deg);
+            }
+            75% {
+                transform: translateY(5px) rotateZ(-2deg);
+            }
+        }
+
+        .logo-3d i {
+            position: relative;
+            z-index: 1;
+            font-size: 60px;
+            color: var(--primary);
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+        }
+
+        .quick-actions h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 700px;
+            margin: 0 auto 50px;
+        }
+
+        .quick-btn {
+            padding: 18px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: var(--primary);
+        }
+
+        .quick-btn i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .quick-btn span {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 25px 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-card i {
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        .feature-card span {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            padding: 30px 20px;
+        }
+
+        .message {
+            margin-bottom: 30px;
+            animation: messageSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .user-message .message-wrapper {
+            max-width: 70%;
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 15px;
+        }
+
+        .user-message .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: white;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            flex-shrink: 0;
+        }
+
+        .user-message .message-text {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 12px 18px;
+            border-radius: 18px 18px 4px 18px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            display: inline-block;
+        }
+
+        .user-message .message-time {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 10px;
+        }
+
+        .bot-message {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .bot-message .message-wrapper {
+            max-width: 70%;
+            display: flex;
+            gap: 15px;
+        }
+
+        .bot-message .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bot-message .message-content {
+            flex: 1;
+        }
+
+        .bot-message .message-text {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            padding: 12px 18px;
+            border-radius: 18px 18px 18px 4px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            display: inline-block;
+            border: 1px solid var(--glass-border);
+        }
+
+        .bot-message .message-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 5px;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .bot-message .message-footer {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .message-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .message-source i {
+            font-size: 11px;
+            color: var(--primary);
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .message-action {
+            padding: 5px 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .message-action:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-bubble {
+            max-width: 200px;
+        }
+
+        .typing-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: 18px;
+        }
+
+        .typing-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: typing-dot 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-dot {
+            0%, 80%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .input-area {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .input-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .input-btn {
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .input-btn:hover {
+            color: var(--text-primary);
+            background: var(--glass-bg);
+        }
+
+        .message-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            min-height: 24px;
+            max-height: 120px;
+            line-height: 1.5;
+            padding: 5px 10px;
+        }
+
+        .message-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-info {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 15px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 14px 24px;
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .app-header {
+                padding: 0 20px 0 60px;
+            }
+            
+            .user-message .message-wrapper,
+            .bot-message .message-wrapper {
+                max-width: 85%;
+            }
+            
+            .quick-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-message .message-wrapper,
+            .bot-message .message-wrapper {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background">
+        <div class="gradient-overlay"></div>
+        <div class="floating-circles">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+            <div class="circle circle-3"></div>
         </div>
     </div>
-    
-    <!-- Main Chat Area -->
-    <div class="main-content">
-        <!-- Animated Header -->
-        <div class="app-header">
-            <div class="header-content">
-                <h1 class="animate-charcter">MEDICAL AI ASSISTANT</h1>
-                <div class="status-indicator">
-                    <span class="pulse-dot"></span>
-                    <span>AI is analyzing</span>
+
+    <div class="app-container">
+        <!-- Toggle Button -->
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar glass-effect" id="sidebar">
+            <div class="sidebar-content">
+                <!-- Logo and New Chat -->
+                <div class="sidebar-header">
+                    <div class="logo-wrapper">
+                        <div class="logo-animated">
+                            <div class="logo-pulse"></div>
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>MediGenius</h1>
+                            <span class="version">AI Assistant v3.0</span>
+                        </div>
+                    </div>
+                    <button class="new-chat-btn" id="newChatBtn">
+                        <i class="fas fa-plus"></i>
+                        <span>New Chat</span>
+                    </button>
+                </div>
+                
+                <!-- Chat History -->
+                <div class="chat-history-section">
+                    <div class="section-header">
+                        <span>Chat History</span>
+                        <div class="section-line"></div>
+                    </div>
+                    <div class="chat-list" id="chatList">
+                        <div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: 13px;">
+                            <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
+                            Loading chats...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Developer Info -->
+                <div class="sidebar-footer">
+                    <div class="developer-card glass-effect">
+                        <div class="dev-header">
+                            <i class="fas fa-code"></i>
+                            <span>Developer</span>
+                        </div>
+                        <div class="dev-info">
+                            <p>Md. Hasan Imon</p>
+                            <div class="social-links">
+                                <a href="https://github.com/Md-Emon-Hasan" class="social-link" target="_blank">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/md-emon-hasan-695483237/" class="social-link" target="_blank">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                                <a href="https://md-emon-hasan.github.io/My-Resume/" class="social-link" target="_blank">
+                                    <i class="fas fa-globe"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="theme-btn glass-effect" id="themeBtn">
+                        <i class="fas fa-moon"></i>
+                    </button>
                 </div>
             </div>
-            <div class="header-actions">
-                <button class="btn-icon" id="theme-toggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
-        </div>
+        </aside>
         
-        <!-- Chat Messages with Parallax Background -->
-        <div class="chat-container" id="chat-container">
-            <div class="parallax-bg"></div>
-            
-            <div class="welcome-screen" id="welcome-screen">
-                <div class="welcome-content">
-                    <div class="animated-logo">
-                        <svg class="pulse" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M50 15L60 40H90L65 60L75 85L50 70L25 85L35 60L10 40H40L50 15Z" fill="#4a6fa5"/>
-                        </svg>
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="app-header glass-header">
+                <div class="header-content">
+                    <h2 class="gradient-text">Medical AI Assistant</h2>
+                    <div class="status-indicator">
+                        <div class="status-ring">
+                            <span class="ring-pulse"></span>
+                        </div>
+                        <span>AI Ready</span>
                     </div>
-                    <h2>How can I help you today?</h2>
-                    <p>Ask me anything about symptoms, treatments, or general health advice</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="action-btn" id="clearBtn" title="Clear conversation">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="action-btn" id="downloadBtn" title="Download chat">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-content">
+                        <div class="logo-3d">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        
+                        <h1 class="welcome-title">Welcome to MediGenius</h1>
+                        <p class="welcome-subtitle">Your AI-powered medical assistant is ready to help</p>
+                        
+                        <div class="quick-actions">
+                            <h3>Quick Questions:</h3>
+                            <div class="quick-buttons">
+                                <button class="quick-btn glass-effect" data-question="What are the symptoms of fever?">
+                                    <i class="fas fa-thermometer"></i>
+                                    <span>Fever Symptoms</span>
+                                </button>
+                                <button class="quick-btn glass-effect" data-question="How to treat a headache?">
+                                    <i class="fas fa-head-side-virus"></i>
+                                    <span>Headache Treatment</span>
+                                </button>
+                                <button class="quick-btn glass-effect" data-question="What causes high blood pressure?">
+                                    <i class="fas fa-heart-pulse"></i>
+                                    <span>High Blood Pressure</span>
+                                </button>
+                                <button class="quick-btn glass-effect" data-question="Tell me about diabetes management">
+                                    <i class="fas fa-notes-medical"></i>
+                                    <span>Diabetes Management</span>
+                                </button>
+                                <button class="quick-btn glass-effect" data-question="COVID-19 prevention tips">
+                                    <i class="fas fa-virus-covid"></i>
+                                    <span>COVID Prevention</span>
+                                </button>
+                                <button class="quick-btn glass-effect" data-question="Common cold remedies">
+                                    <i class="fas fa-pills"></i>
+                                    <span>Cold Remedies</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="features">
+                            <div class="feature-card glass-effect">
+                                <i class="fas fa-brain"></i>
+                                <span>AI-Powered</span>
+                            </div>
+                            <div class="feature-card glass-effect">
+                                <i class="fas fa-database"></i>
+                                <span>Medical Database</span>
+                            </div>
+                            <div class="feature-card glass-effect">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Reliable Info</span>
+                            </div>
+                            <div class="feature-card glass-effect">
+                                <i class="fas fa-clock"></i>
+                                <span>24/7 Available</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messages Container -->
+                <div class="messages-container" id="messagesContainer"></div>
+                
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-bubble glass-effect">
+                        <div class="typing-content">
+                            <span class="typing-text">MediGenius is thinking</span>
+                            <div class="typing-dots">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <div class="input-container glass-effect">
+                        <button class="input-btn" id="attachBtn" title="Attach file">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <textarea 
+                            id="messageInput" 
+                            class="message-input" 
+                            placeholder="Ask your medical question..."
+                            rows="1"
+                        ></textarea>
+                        <button class="input-btn" id="voiceBtn" title="Voice input">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="send-btn" id="sendBtn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>AI can make mistakes. Always consult healthcare professionals for medical advice.</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast glass-effect" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const chatArea = document.getElementById('chatArea');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const chatList = document.getElementById('chatList');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // State
+        let isTyping = false;
+        let chatHistory = [];
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let sidebarOpen = localStorage.getItem('sidebarOpen') !== 'false';
+        let currentSessionId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            initializeEventListeners();
+            loadChatSessions();
+            loadCurrentChatHistory();
+        });
+
+        // Initialize App
+        function initializeApp() {
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            if (sidebarOpen) {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.add('sidebar-open');
+            } else {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.remove('sidebar-open');
+            }
+            
+            messageInput.addEventListener('input', () => {
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+                sendBtn.disabled = messageInput.value.trim() === '';
+            });
+        }
+
+        // Initialize Event Listeners
+        function initializeEventListeners() {
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            document.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const question = btn.dataset.question;
+                    messageInput.value = question;
+                    sendBtn.disabled = false;
+                    setTimeout(() => sendMessage(), 200);
+                });
+            });
+            
+            sidebarToggleBtn.addEventListener('click', toggleSidebar);
+            newChatBtn.addEventListener('click', createNewChat);
+            clearBtn.addEventListener('click', clearChat);
+            themeBtn.addEventListener('click', toggleTheme);
+            downloadBtn.addEventListener('click', downloadChat);
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-open');
+            sidebarOpen = !sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarOpen', sidebarOpen);
+        }
+
+        // Load Chat Sessions from Database
+        async function loadChatSessions() {
+            try {
+                const response = await fetch('/api/sessions');
+                const data = await response.json();
+                
+                if (data.success && data.sessions) {
+                    displayChatSessions(data.sessions);
+                }
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                chatList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: 13px;">Failed to load chats</div>';
+            }
+        }
+
+        // Display Chat Sessions
+        function displayChatSessions(sessions) {
+            if (sessions.length === 0) {
+                chatList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: 13px;">No chat history yet</div>';
+                return;
+            }
+
+            chatList.innerHTML = '';
+            sessions.forEach(session => {
+                const chatItem = document.createElement('div');
+                chatItem.className = 'chat-item';
+                chatItem.dataset.sessionId = session.session_id;
+                
+                const preview = session.preview || 'New conversation';
+                const timeAgo = formatTimeAgo(session.last_active);
+                
+                chatItem.innerHTML = `
+                    <i class="fas fa-message"></i>
+                    <div class="chat-item-content">
+                        <div class="chat-item-title">${preview}</div>
+                        <div class="chat-item-time">${timeAgo}</div>
+                    </div>
+                    <button class="chat-item-delete" onclick="deleteSession('${session.session_id}', event)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                chatItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.chat-item-delete')) {
+                        loadSession(session.session_id);
+                    }
+                });
+                
+                chatList.appendChild(chatItem);
+            });
+        }
+
+        // Format Time Ago
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const diffMs = now - past;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return past.toLocaleDateString();
+        }
+
+        // Load Session
+        async function loadSession(sessionId) {
+            try {
+                const response = await fetch(`/api/session/${sessionId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentSessionId = sessionId;
+                    messagesContainer.innerHTML = '';
+                    welcomeScreen.classList.add('hidden');
                     
-                    <div class="quick-questions">
-                        <button class="quick-btn" data-question="What are COVID-19 symptoms?">
-                            <i class="fas fa-virus"></i> COVID Symptoms
-                        </button>
-                        <button class="quick-btn" data-question="How to treat a migraine?">
-                            <i class="fas fa-head-side-virus"></i> Migraine Relief
-                        </button>
-                        <button class="quick-btn" data-question="Best diet for diabetes?">
-                            <i class="fas fa-apple-alt"></i> Diabetes Diet
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages"></div>
-        </div>
-        
-        <!-- Advanced Input Area -->
-        <div class="input-container">
-            <div class="input-box">
-                <button class="btn-icon" id="attach-btn">
-                    <i class="fas fa-paperclip"></i>
-                </button>
-                <div class="text-input" id="text-input" contenteditable="true" placeholder="Type your health question..."></div>
-                <button class="btn-icon" id="voice-btn">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button class="btn-send" id="send-btn">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="input-footer">
-                <span class="disclaimer">AI may produce inaccurate information. Consult a doctor.</span>
-                <div class="typing-indicator" id="typing-indicator">
-                    <span>Dr. Assistant is typing</span>
-                    <div class="dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Notification Toast -->
-    <div class="toast-notification" id="toast">
-        <div class="toast-content">
-            <i class="fas fa-check-circle"></i>
-            <span>Message sent</span>
-        </div>
-    </div>
-</div>
+                    data.messages.forEach(msg => {
+                        addMessage(msg.content, msg.role, msg.timestamp, msg.source, false);
+                    });
+                    
+                    document.querySelectorAll('.chat-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.dataset.sessionId === sessionId) {
+                            item.classList.add('active');
+                        }
+                    });
+                    
+                    showToast('Chat loaded successfully', 'success');
+                }
+            } catch (error) {
+                console.error('Error loading session:', error);
+                showToast('Failed to load chat', 'error');
+            }
+        }
 
-<!-- Animated Background Elements -->
-<div class="floating-elements">
-    <div class="floating-circle circle-1"></div>
-    <div class="floating-circle circle-2"></div>
-    <div class="floating-circle circle-3"></div>
-</div>
-{% endblock %}
+        // Load Current Chat History
+        async function loadCurrentChatHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                if (data.success && data.messages && data.messages.length > 0) {
+                    welcomeScreen.classList.add('hidden');
+                    data.messages.forEach(msg => {
+                        addMessage(msg.content, msg.role, msg.timestamp, msg.source, false);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Delete Session
+        async function deleteSession(sessionId, event) {
+            event.stopPropagation();
+            
+            if (!confirm('Are you sure you want to delete this chat?')) return;
+            
+            try {
+                const response = await fetch(`/api/session/${sessionId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadChatSessions();
+                    
+                    if (currentSessionId === sessionId) {
+                        createNewChat();
+                    }
+                    
+                    showToast('Chat deleted successfully', 'success');
+                }
+            } catch (error) {
+                console.error('Error deleting session:', error);
+                showToast('Failed to delete chat', 'error');
+            }
+        }
+
+        // Send Message
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isTyping) return;
+            
+            if (!welcomeScreen.classList.contains('hidden')) {
+                welcomeScreen.classList.add('hidden');
+            }
+            
+            addMessage(message, 'user');
+            
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            
+            showTyping();
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage(data.response, 'assistant', data.timestamp, data.source);
+                    showToast('Response received', 'success');
+                    loadChatSessions();
+                } else {
+                    addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+                    showToast('Error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Connection error. Please check your internet and try again.', 'assistant');
+                showToast('Connection error', 'error');
+            } finally {
+                hideTyping();
+            }
+        }
+
+        // Add Message
+        function addMessage(content, type, timestamp = null, source = null, animate = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            if (animate) messageDiv.style.opacity = '0';
+            
+            const time = timestamp || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-wrapper">
+                        <div class="message-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">
+                                ${content}
+                                <span class="message-time">${time}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                let footerHtml = '';
+                if (source || type === 'assistant') {
+                    footerHtml = `
+                        <div class="message-footer">
+                            ${source ? `
+                                <span class="message-source">
+                                    <i class="fas fa-database"></i>
+                                    ${source}
+                                </span>
+                            ` : ''}
+                            <div class="message-actions">
+                                <button class="message-action" onclick="copyMessage(this)" title="Copy">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                messageDiv.innerHTML = `
+                    <div class="message-wrapper">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">${content}</div>
+                            <span class="message-time">${time}</span>
+                            ${footerHtml}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            if (animate) {
+                setTimeout(() => {
+                    messageDiv.style.transition = 'opacity 0.4s ease';
+                    messageDiv.style.opacity = '1';
+                }, 100);
+            }
+            
+            smoothScrollToBottom();
+            chatHistory.push({ content, type, timestamp: time, source });
+        }
+
+        // Copy Message
+        function copyMessage(btn) {
+            const messageText = btn.closest('.message-content').querySelector('.message-text').textContent.trim();
+            navigator.clipboard.writeText(messageText).then(() => {
+                showToast('Message copied', 'success');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        // Typing Indicator
+        function showTyping() {
+            isTyping = true;
+            typingIndicator.classList.add('active');
+            smoothScrollToBottom();
+        }
+
+        function hideTyping() {
+            isTyping = false;
+            typingIndicator.classList.remove('active');
+        }
+
+        function smoothScrollToBottom() {
+            chatArea.scrollTo({
+                top: chatArea.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            
+            themeBtn.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+            showToast(`${currentTheme === 'dark' ? 'Dark' : 'Light'} mode activated`, 'success');
+        }
+
+        // Create New Chat
+        async function createNewChat() {
+            try {
+                const response = await fetch('/api/new-chat', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    messagesContainer.innerHTML = '';
+                    welcomeScreen.classList.remove('hidden');
+                    chatHistory = [];
+                    currentSessionId = null;
+                    
+                    document.querySelectorAll('.chat-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    loadChatSessions();
+                    showToast('New chat created', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Failed to create new chat', 'error');
+            }
+        }
+
+        // Clear Chat
+        async function clearChat() {
+            if (!confirm('Are you sure you want to clear this conversation?')) return;
+            
+            try {
+                const response = await fetch('/api/clear', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    messagesContainer.innerHTML = '';
+                    welcomeScreen.classList.remove('hidden');
+                    chatHistory = [];
+                    showToast('Conversation cleared', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Failed to clear conversation', 'error');
+            }
+        }
+
+        // Download Chat
+        function downloadChat() {
+            if (chatHistory.length === 0) {
+                showToast('No messages to download', 'error');
+                return;
+            }
+            
+            let content = 'MediGenius Chat Export\n';
+            content += '='.repeat(50) + '\n\n';
+            
+            chatHistory.forEach((msg) => {
+                content += `[${msg.timestamp}] ${msg.type === 'user' ? 'You' : 'MediGenius'}:\n`;
+                content += msg.content + '\n';
+                if (msg.source) {
+                    content += `Source: ${msg.source}\n`;
+                }
+                content += '\n';
+            });
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `medigenius-chat-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Chat downloaded successfully', 'success');
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const icons = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'info': 'fa-info-circle'
+            };
+            
+            const colors = {
+                'success': 'linear-gradient(135deg, #10b981, #059669)',
+                'error': 'linear-gradient(135deg, #ef4444, #dc2626)',
+                'info': 'linear-gradient(135deg, #3b82f6, #2563eb)'
+            };
+            
+            toast.style.background = colors[type];
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i><span>${message}</span>`;
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Make functions globally available
+        window.deleteSession = deleteSession;
+        window.copyMessage = copyMessage;
+    </script>
+</body>
+</html>

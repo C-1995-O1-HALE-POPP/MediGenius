@@ -1,34 +1,40 @@
-# agents/llm_agent.py
-from tools.llm_client import get_llm
 from core.state import AgentState
+from tools.llm_client import get_llm
 
-class LLMAgent:
+def LLMAgent(state: AgentState) -> AgentState:
     llm = get_llm()
     
-    @classmethod
-    def process(cls, state: AgentState) -> AgentState:
-        try:
-            ctx = "\n".join(state.get("conversation_history", [])[-10:])
-            prompt = f"""You are a compassionate and knowledgeable medical AI assistant and doctor helping a patient. Your conversational skill should be a professional consultant with a human touch.
-
-Patient's History:
-{ctx}
-
-Patient's Question:
-{state['question']}
-
-Respond like an experienced doctor in 2–3 sentences. Be clear, professional, and confident. Do not mention sources or uncertainty."""
-
-            response = cls.llm.invoke(prompt)
-            answer = response.content.strip()
-
-            if answer:
-                state["generation"] = answer
-                state["llm_success"] = True
-            else:
-                state["llm_success"] = False
-        except Exception:
-            state["llm_success"] = False
-
+    if not llm:
+        state["llm_success"] = False
         state["llm_attempted"] = True
         return state
+    
+    history_context = ""
+    for item in state.get("conversation_history", [])[-5:]:
+        if item.get('role') == 'user':
+            history_context += f"Patient: {item.get('content', '')}\n"
+        elif item.get('role') == 'assistant':
+            history_context += f"Doctor: {item.get('content', '')}\n"
+    
+    prompt = f"""You are a compassionate and knowledgeable medical AI assistant helping a patient.
+
+Conversation History:
+{history_context}
+
+Current Patient Question:
+{state['question']}
+
+Provide a helpful medical response in 2-3 sentences. Be clear, professional, and caring."""
+
+    response = llm.invoke(prompt)
+    answer = response.content.strip() if hasattr(response, 'content') else str(response).strip()
+
+    if answer and len(answer) > 10:
+        state["generation"] = answer
+        state["llm_success"] = True
+        state["source"] = "AI Medical Knowledge"
+    else:
+        state["llm_success"] = False
+
+    state["llm_attempted"] = True
+    return state

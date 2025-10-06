@@ -1,7 +1,4 @@
-# core/state.py
-from typing import TypedDict
-from typing import List
-from typing import Optional
+from typing import TypedDict, List, Optional
 from langchain.schema import Document
 
 class AgentState(TypedDict):
@@ -10,19 +7,19 @@ class AgentState(TypedDict):
     generation: str
     source: str
     search_query: Optional[str]
-    conversation_history: List[str]
+    conversation_history: List[dict]
     llm_attempted: bool
     llm_success: bool
     rag_attempted: bool
     rag_success: bool
     wiki_attempted: bool
     wiki_success: bool
-    ddg_attempted: bool
-    ddg_success: bool
+    tavily_attempted: bool
+    tavily_success: bool
     current_tool: Optional[str]
     retry_count: int
 
-def initialize_state() -> AgentState:
+def initialize_conversation_state():
     return {
         "question": "",
         "documents": [],
@@ -36,8 +33,29 @@ def initialize_state() -> AgentState:
         "rag_success": False,
         "wiki_attempted": False,
         "wiki_success": False,
-        "ddg_attempted": False,
-        "ddg_success": False,
+        "tavily_attempted": False,
+        "tavily_success": False,
         "current_tool": None,
         "retry_count": 0
     }
+
+def reset_query_state(state: AgentState) -> AgentState:
+    """Reset state for new query while preserving conversation history"""
+    state.update({
+        "question": "",
+        "documents": [],
+        "generation": "",
+        "source": "",
+        "search_query": None,
+        "llm_attempted": False,
+        "llm_success": False,
+        "rag_attempted": False,
+        "rag_success": False,
+        "wiki_attempted": False,
+        "wiki_success": False,
+        "tavily_attempted": False,
+        "tavily_success": False,
+        "current_tool": None,
+        "retry_count": 0
+    })
+    return state

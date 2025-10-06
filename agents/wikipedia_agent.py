@@ -1,29 +1,33 @@
-# agents/wikipedia_agent.py
-from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
-from core.state import AgentState
 from langchain.schema import Document
+from core.state import AgentState
+from tools.search_tools import get_wikipedia_wrapper
 
-class WikipediaAgent:
-    wiki = WikipediaAPIWrapper(
-        top_k_results=2,
-        doc_content_chars_max=2000,
-        load_all_available_meta=True
-    )
+def WikipediaAgent(state: AgentState) -> AgentState:
+    wiki = get_wikipedia_wrapper()
     
-    @classmethod
-    def process(cls, state: AgentState) -> AgentState:
-        try:
-            content = cls.wiki.run(state["question"])
-            if content:
-                state["documents"] = [Document(page_content=content)]
-                state["wiki_success"] = True
-                state["conversation_history"].append("AI: Retrieved information from Wikipedia.")
-            else:
-                state["documents"] = []
-                state["wiki_success"] = False
-        except Exception:
-            state["documents"] = []
-            state["wiki_success"] = False
-
+    if not wiki:
+        state["documents"] = []
+        state["wiki_success"] = False
         state["wiki_attempted"] = True
         return state
+    
+    # Search with medical context
+    search_query = f"{state['question']} medical symptoms treatment"
+    content = wiki.run(search_query)
+    
+    if not content or len(content.strip()) < 100:
+        # Fallback to simpler search
+        content = wiki.run(state['question'])
+    
+    if content and len(content.strip()) > 100:
+        state["documents"] = [Document(page_content=content)]
+        state["wiki_success"] = True
+        state["source"] = "Wikipedia Medical Information"
+        print("Wikipedia: Found relevant content")
+    else:
+        state["documents"] = []
+        state["wiki_success"] = False
+        print("Wikipedia: No relevant content found")
+
+    state["wiki_attempted"] = True
+    return state

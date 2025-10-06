@@ -1,6 +1,6 @@
-# 🩺 MediGenius: AI Medical Assistant
+# 🩺 MediGenius: Multi-Agent Doctor Assistant
 
-[![Medical AI Assistant Demo](https://github.com/user-attachments/assets/c28917fd-c518-47df-a385-9b38dff54db9)](https://github.com/user-attachments/assets/c28917fd-c518-47df-a385-9b38dff54db9)
+[![Medical AI Assistant Demo](https://github.com/user-attachments/assets/73828ab1-67aa-42d4-828f-6b2e1c72e429)](https://github.com/user-attachments/assets/73828ab1-67aa-42d4-828f-6b2e1c72e429)
 
 ---
 
@@ -97,6 +97,8 @@ MediGenius/
 │   ├── planner_agent.py
 │   ├── retriever_agent.py
 │   └── wikipedia_agent.py
+│
+├── biogpt-merged/         # Fine Tuning Model
 │ 
 ├── core/
 │   ├── __init__.py
@@ -109,8 +111,13 @@ MediGenius/
 ├──── medical_db/
 │   └── chroma.sqlite3
 │
+├──── chat_db/
+│   └── medigenius_chats.db
+│
 ├── notebook/
-│   └── experiment.ipynb
+│   ├── Experiments.ipynb
+│   ├── Fine Tuning LLM.ipynb
+│   └── Model Train.ipynb
 │
 ├── static/
 │   ├── css/
@@ -119,7 +126,6 @@ MediGenius/
 │       └── main.js
 │
 ├── templates/
-│   ├── base.html
 │   └── index.html
 │
 ├── tests/
@@ -137,6 +143,7 @@ MediGenius/
 ├── app.py
 ├── demo.mp4
 ├── Dockerfile
+├── Fine Tuning LLM.py
 ├── LICENSE
 ├── main.py
 ├── README.md

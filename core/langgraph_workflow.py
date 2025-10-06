@@ -1,80 +1,115 @@
-# core/langgraph_workflow.py
-from langgraph.graph import StateGraph
-from langgraph.graph import END
-from agents import MemoryAgent
-from agents import PlannerAgent
-from agents import LLMAgent
-from agents import RetrieverAgent
-from agents import WikipediaAgent
-from agents import DuckDuckGoAgent
-from agents import ExecutorAgent
-from agents import ExplanationAgent
-
+from langgraph.graph import StateGraph, END
 from core.state import AgentState
+from agents.memory_agent import MemoryAgent
+from agents.planner_agent import PlannerAgent
+from agents.llm_agent import LLMAgent
+from agents.retriever_agent import RetrieverAgent
+from agents.wikipedia_agent import WikipediaAgent
+from agents.tavily_agent import TavilyAgent
+from agents.executor_agent import ExecutorAgent
+from agents.explanation_agent import ExplanationAgent
 
-def setup_workflow():
+def route_after_planner(state: AgentState):
+    if state["current_tool"] == "retriever":
+        return "retriever"
+    else:
+        return "llm_agent"
+
+def route_after_llm(state: AgentState):
+    if state.get("llm_success", False):
+        return "executor"
+    else:
+        return "retriever"
+
+def route_after_rag(state: AgentState):
+    if state.get("rag_success", False):
+        return "executor"
+    else:
+        return "llm_agent"  # Try LLM if RAG fails
+
+def route_after_llm_fallback(state: AgentState):
+    if state.get("llm_success", False):
+        return "executor"
+    else:
+        return "wikipedia"
+
+def route_after_wiki(state: AgentState):
+    if state.get("wiki_success", False):
+        return "executor"
+    else:
+        return "tavily"
+
+def route_after_tavily(state: AgentState):
+    return "executor"
+
+def create_workflow():
     workflow = StateGraph(AgentState)
     
-    # Add all agent nodes
-    workflow.add_node("memory", MemoryAgent.process)
-    workflow.add_node("planner", PlannerAgent.process)
-    workflow.add_node("llm_agent", LLMAgent.process)
-    workflow.add_node("retriever", RetrieverAgent.process)
-    workflow.add_node("wikipedia", WikipediaAgent.process)
-    workflow.add_node("duckduckgo", DuckDuckGoAgent.process)
-    workflow.add_node("executor", ExecutorAgent.process)
-    workflow.add_node("explanation", ExplanationAgent.process)
+    # Add nodes
+    workflow.add_node("memory", MemoryAgent)
+    workflow.add_node("planner", PlannerAgent)
+    workflow.add_node("llm_agent", LLMAgent)
+    workflow.add_node("retriever", RetrieverAgent)
+    workflow.add_node("wikipedia", WikipediaAgent)
+    workflow.add_node("tavily", TavilyAgent)
+    workflow.add_node("executor", ExecutorAgent)
+    workflow.add_node("explanation", ExplanationAgent)
     
     # Set entry point
     workflow.set_entry_point("memory")
     
-    # Define edges and conditional routing
+    # Add edges
     workflow.add_edge("memory", "planner")
-    workflow.add_edge("planner", "llm_agent")
     
-    def route_after_llm(state: AgentState):
-        if state.get("llm_success", False):
-            return "executor"
-        return "retriever"
+    # Conditional edges with improved fallback logic
+    workflow.add_conditional_edges(
+        "planner",
+        route_after_planner,
+        {
+            "retriever": "retriever",
+            "llm_agent": "llm_agent"
+        }
+    )
     
+    # If initial LLM attempt
     workflow.add_conditional_edges(
         "llm_agent",
         route_after_llm,
-        {"executor": "executor", "retriever": "retriever"}
+        {
+            "executor": "executor",
+            "retriever": "retriever"
+        }
     )
     
-    def route_after_rag(state: AgentState):
-        if state.get("rag_success", False):
-            return "executor"
-        return "wikipedia"
-    
+    # If retriever fails, try LLM
     workflow.add_conditional_edges(
         "retriever",
         route_after_rag,
-        {"executor": "executor", "wikipedia": "wikipedia"}
+        {
+            "executor": "executor",
+            "llm_agent": "llm_agent"
+        }
     )
     
-    def route_after_wiki(state: AgentState):
-        if state.get("wiki_success", False):
-            return "executor"
-        return "duckduckgo"
-    
+    # After Wiki
     workflow.add_conditional_edges(
         "wikipedia",
         route_after_wiki,
-        {"executor": "executor", "duckduckgo": "duckduckgo"}
+        {
+            "executor": "executor",
+            "tavily": "tavily"
+        }
     )
     
-    def route_after_ddg(state: AgentState):
-        return "executor"
-    
+    # After Tavily
     workflow.add_conditional_edges(
-        "duckduckgo",
-        route_after_ddg,
-        {"executor": "executor"}
+        "tavily",
+        route_after_tavily,
+        {
+            "executor": "executor"
+        }
     )
     
-    workflow.add_edge("executor", "explanation")
-    workflow.add_edge("explanation", END)
+    workflow.add_edge("executor", END)
     
     return workflow.compile()
