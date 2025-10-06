@@ -171,8 +171,6 @@ MediGenius/
 
 ---
 
-
----
 ## 🧱 **Project Architecture**
 
 ```mermaid
